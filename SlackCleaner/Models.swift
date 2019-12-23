@@ -22,6 +22,30 @@ struct User {
     var teamName: String
     var teamId: String
     var token: String
+    
+    init?(jsonBlob: [String : Any], token: String) {
+        guard let username: String = GetValue(from: jsonBlob, with: "user") else {
+            return nil
+        }
+        
+        guard let userId: String = GetValue(from: jsonBlob, with: "user_id") else {
+            return nil
+        }
+        
+        guard let teamName: String = GetValue(from: jsonBlob, with: "team") else {
+            return nil
+        }
+        
+        guard let teamId: String = GetValue(from: jsonBlob, with: "team_id") else {
+            return nil
+        }
+        
+        self.token = token
+        self.username = username
+        self.userId = userId
+        self.teamName = teamName
+        self.teamId = teamId
+    }
 }
 
 struct File {
@@ -40,9 +64,9 @@ struct File {
     let permalink: URL
     let publicPermalink: URL
     
-    let channelIds = [String]()
-    let groupChatIds = [String]()
-    let dmChatIds = [String]()
+    let channelIds: [String]
+    let groupChatIds: [String]
+    let dmChatIds: [String]
     
     init?(jsonBlob: [String : Any]) {
         guard let id: String = GetValue(from: jsonBlob, with: "id") else {
@@ -53,23 +77,77 @@ struct File {
             return nil
         }
         
-        guard let filename: String = jsonBlob["name"] as? String else {
+        guard let filename: String = GetValue(from: jsonBlob, with:"name") else {
             return nil
         }
         
-        guard let title: String = jsonBlob["title"] as? String else {
+        guard let title: String = GetValue(from: jsonBlob, with:"title") else {
             return nil
         }
         
-        guard let mimeType: String = jsonBlob["mimetype"] as? String else {
+        guard let mimeType: String = GetValue(from: jsonBlob, with: "mimetype") else {
             return nil
         }
         
-        guard let fileType: String = jsonBlob["filetype"] as? String else {
-            
+        guard let fileType: String = GetValue(from: jsonBlob, with:"filetype") else {
+            return nil
         }
         
+        guard let userId: String = GetValue(from: jsonBlob, with: "user") else {
+            return nil
+        }
+        
+        guard let size: Int = GetValue(from: jsonBlob, with: "size") else {
+            return nil
+        }
+        
+        guard let privateUrlString: String = GetValue(from: jsonBlob, with: "url_private") else {
+            return nil
+        }
+        
+        guard let privateDownloadUrlString: String = GetValue(from: jsonBlob, with: "url_private_download") else {
+            return nil
+        }
+        
+        guard let permalink: String = GetValue(from: jsonBlob, with: "permalink") else {
+            return nil
+        }
+        
+        guard let publicPermalink: String = GetValue(from: jsonBlob, with: "permalink_public") else {
+            return nil
+        }
+        
+        guard let channelIds: [String] = GetValue(from: jsonBlob, with: "channels") else {
+            return nil
+        }
+        
+        guard let groupChatIds: [String] = GetValue(from: jsonBlob, with: "groups") else {
+            return nil
+        }
+        
+        guard let dmChatIds: [String] = GetValue(from: jsonBlob, with: "ims") else {
+            return nil
+        }
+        
+        self.id = id
+        self.createdTime = TimeInterval(createdTime)!
+        self.filename = filename
+        self.title = title
+        self.mimeType = mimeType
+        self.fileType = fileType
+        self.userId = userId
+        self.size = size
+        self.privateUrl = URL(string: privateUrlString)!
+        self.privateDownloadUrl = URL(string: privateDownloadUrlString)!
+        self.permalink = URL(string: permalink)!
+        self.publicPermalink = URL(string: publicPermalink)!
+        self.channelIds = channelIds
+        self.groupChatIds = groupChatIds
+        self.dmChatIds = dmChatIds
     }
+        
+        
+        
 }
 
 struct Message {
@@ -80,18 +158,23 @@ struct Message {
     
     init?(jsonBlob: [String : Any]) {
         
-        guard let timestamp = TimeInterval(jsonBlob["ts"] as! String) else {
+        guard let timestamp:String = GetValue(from: jsonBlob, with: "ts") else {
             return nil
         }
-        guard let text = jsonBlob["text"] as? String else {
+        guard let text:String = GetValue(from: jsonBlob, with: "text") else {
             return nil
         }
-        guard let channelData: [String:Any] = jsonBlob["channel"] as? [String:Any] else {
+        guard let channelData: [String:Any] = GetValue(from: jsonBlob, with: "channel") else {
             return nil
         }
-        self.timestamp = timestamp
+        
+        guard let channelID: String = GetValue(from: channelData, with: "id") else {
+            return nil
+        }
+        
+        self.timestamp = TimeInterval(timestamp)!
         self.text = text
-        channelID = channelData["id"] as! String
+        self.channelID = channelID
     }
 
 }
